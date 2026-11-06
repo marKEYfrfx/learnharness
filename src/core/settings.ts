@@ -37,6 +37,7 @@ import type { ChatSettings } from "./contracts/chat.ts";
 import { isSearchEngineId, type SearchEngineId } from "./search.ts";
 import { isDictationLanguage, type DictationLanguage } from "./dictation.ts";
 import { parseFileAccessSettings, type FileAccessSettings } from "./file-access.ts";
+import { sanitizeGithubSync, type GithubSyncSettings } from "./github-sync.ts";
 
 /** The schema version this code understands. Bump ONLY for breaking shape
  *  changes (a field renamed/meaning changed); pure additions never bump. */
@@ -484,6 +485,10 @@ export interface UserSettings {
 	appearance?: AppearanceSettings;
 	graph?: GraphSettings;
 	compaction?: CompactionSettings;
+	/** GitHub sync of the data folder (docs/github-sync.md). Non-secret
+	 *  config only — the OAuth token lives in github-sync-credentials.json
+	 *  beside auth.json, never in this record (which is itself pushed). */
+	githubSync?: GithubSyncSettings;
 	[key: string]: unknown;
 }
 
@@ -851,6 +856,9 @@ export function sanitizeUserSettings(raw: unknown): UserSettings | null {
 		if (r.compaction !== undefined && r.compaction !== null && typeof r.compaction === "object") {
 			out.compaction = sanitizeCompaction(r.compaction as Record<string, unknown>);
 		}
+	}
+	if (r.githubSync !== null && typeof r.githubSync === "object" && !Array.isArray(r.githubSync)) {
+		out.githubSync = sanitizeGithubSync(r.githubSync as Record<string, unknown>);
 	}
 	// Unknown top-level keys ride along untouched (forward-compat). One
 	// known-DEAD key is stripped instead of riding: `chat` (the old

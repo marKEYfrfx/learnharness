@@ -32,6 +32,7 @@ import { WRITABLE_TOOL_KEYS } from "../core/pending.ts";
 import { isSearchEngineId, SEARCH_ENGINES } from "../core/search.ts";
 import { isDictationLanguage } from "../core/dictation.ts";
 import { parseFileAccessSettings } from "../core/file-access.ts";
+import { parseRepoSlug, type GithubSyncSettings } from "../core/github-sync.ts";
 
 /** Parsed-or-rejected — `ok: false` carries the 400's error message. */
 export type SettingsBodyResult<T> =
@@ -416,6 +417,28 @@ export function parseDictationSettingsBody(body: unknown): SettingsBodyResult<Di
 	return { ok: true, settings: { language: raw.language } };
 }
 
+/** githubSync: { enabled?: boolean, repo?: "owner/name" | GitHub URL | "" }.
+ *  The repo is stored normalized ("owner/name"); "" clears it. Shape-only —
+ *  whether the repo exists / is reachable surfaces on the next sync run. */
+export function parseGithubSyncSettingsBody(body: unknown): SettingsBodyResult<GithubSyncSettings> {
+	const raw = asRecord(body);
+	if (!raw) return { ok: false, error: "Invalid JSON body" };
+	const settings: GithubSyncSettings = {};
+	if (raw.enabled !== undefined) {
+		if (typeof raw.enabled !== "boolean") return { ok: false, error: "enabled must be a boolean" };
+		settings.enabled = raw.enabled;
+	}
+	if (raw.repo !== undefined) {
+		if (typeof raw.repo !== "string") return { ok: false, error: "repo must be a string" };
+		if (raw.repo.trim() !== "") {
+			const slug = parseRepoSlug(raw.repo);
+			if (!slug) return { ok: false, error: "repo must look like owner/name (or a github.com URL)" };
+			settings.repo = slug;
+		}
+	}
+	return { ok: true, settings };
+}
+
 /** The custom endpoint's per-model pins (PATCH /api/custom-provider): the
  *  whole desired map, replace-whole like every section. Strict write side — a
  *  token count must be a whole number at or above the floor (the read side
@@ -467,6 +490,7 @@ export const SETTINGS_SECTIONS = {
 	models: parseModelsSettingsBody,
 	dictation: parseDictationSettingsBody,
 	claudeCode: parseClaudeCodeSettingsBody,
+	githubSync: parseGithubSyncSettingsBody,
 } as const;
 
 export type SettingsSectionName = keyof typeof SETTINGS_SECTIONS;

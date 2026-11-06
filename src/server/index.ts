@@ -55,3 +55,7 @@ export { claudeCodeInstallationResponse } from "./claude-code.ts";
 // No import side effects; the boot sync lives in stores.ts.
 export * from "./custom-provider.ts";
 export { customProviderGet, customProviderMutation } from "./custom-provider-http.ts";
+// GitHub sync of the data folder (docs/github-sync.md). Importing the
+// engine starts its unref'd background interval (outside tests).
+export { githubSyncStatus, syncDataFolderNow } from "./github-sync.ts";
+export { GithubLoginError, cancelGithubLogin, signOutGithub, startGithubLogin } from "./github-oauth.ts";

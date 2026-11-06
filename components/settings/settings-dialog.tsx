@@ -36,6 +36,7 @@ import {
 	type AgentSettings,
 	type AppearanceSettings,
 	type CompactionSettings,
+	type GithubSyncSettings,
 	type GraphSettings,
 	type UserSettings,
 } from "@/src/core";
@@ -50,6 +51,7 @@ import { KeysSection } from "./keys-section.tsx";
 import { Hint } from "@/components/ui/hint";
 import { AppearanceSection, GraphSection } from "./appearance-section.tsx";
 import { KeyboardSection } from "./keyboard-section.tsx";
+import { GithubSyncSection } from "./github-sync-section.tsx";
 import { ChatGPTUIProvider } from "./chatgpt-connection.tsx";
 import { NativeSubscriptionUIProvider } from "./subscription-connections.tsx";
 
@@ -62,6 +64,7 @@ const SECTIONS = [
 	{ id: "appearance", label: "Appearance" },
 	{ id: "graph", label: "Graph" },
 	{ id: "keyboard", label: "Keyboard", hint: "Stored on this device" },
+	{ id: "sync", label: "Sync" },
 	{ id: "general", label: "General" },
 ] as const;
 type SectionId = (typeof SECTIONS)[number]["id"];
@@ -228,7 +231,7 @@ export function SettingsDialogBody({
 	 *  schema mistake caught by the validation surface). */
 	const write = useCallback(
 		async (
-			section: "general" | "agent" | "models" | "appearance" | "graph" | "compaction",
+			section: "general" | "agent" | "models" | "appearance" | "graph" | "compaction" | "githubSync",
 			body: object,
 		) => {
 			setError(null);
@@ -420,6 +423,20 @@ export function SettingsDialogBody({
 										graph={record.graph}
 										onSectionChange={(next: GraphSettings) =>
 											void write("graph", next)
+										}
+									/>
+								</SettingsSection>
+							)}
+							{active === "sync" && (
+								<SettingsSection
+									title="Sync"
+									hint="Back up your sessions, graph and settings to a private GitHub repo."
+									testid="section-sync"
+								>
+									<GithubSyncSection
+										section={record.githubSync}
+										onSectionChange={(next: GithubSyncSettings) =>
+											write("githubSync", next)
 										}
 									/>
 								</SettingsSection>

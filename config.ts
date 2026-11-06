@@ -145,3 +145,22 @@ export const PROMPTS_OVERRIDE_DIR = path.join(DATA_ROOT, "prompts");
 export const AUTH_FILE = process.env.LH_AUTH_FILE
 	? path.resolve(process.env.LH_AUTH_FILE)
 	: path.join(ROOT, "auth.json");
+
+/**
+ * GITHUB SYNC (docs/github-sync.md, owner 2026-10-31). The OAuth token for
+ * pushing the data folder lives in its OWN 0600 file BESIDE auth.json —
+ * never inside the data folder (that folder is what gets pushed) and never
+ * in auth.json itself (every unknown auth.json var surfaces as a generic
+ * row in Settings → Providers and is reflected into process.env).
+ */
+export const GITHUB_SYNC_CREDENTIALS_FILE = path.join(path.dirname(AUTH_FILE), "github-sync-credentials.json");
+
+/**
+ * The GitHub OAuth App client ID for the device flow. PUBLIC by design —
+ * the device flow uses no client secret — so committing it is safe.
+ * Register an OAuth App (github.com/settings/developers → New OAuth App,
+ * tick "Enable Device Flow"; any homepage/callback URL) and paste its
+ * Client ID here. LH_GITHUB_CLIENT_ID (read live, wins when set) overrides
+ * it for dev. Empty = sign-in unavailable (the Settings section says so).
+ */
+export const GITHUB_OAUTH_CLIENT_ID = "";
