@@ -8,6 +8,9 @@
 
 <p align="center"><strong>An agent harness for learning.</strong></p>
 
+> [!NOTE]
+> **This is an unmaintained personal fork** of [amosblomqvist/learnharness](https://github.com/amosblomqvist/learnharness). It only adds a vibe-coded GitHub sync feature (backing up the data folder to a private repo — see [docs/github-sync.md](docs/github-sync.md)) for my own use. It won't be kept up to date, and issues or pull requests here won't be looked at. For the real project, use the upstream repo.
+
 <p align="center">
   <a href="https://learnharness.ai">Download</a> ·
   <a href="#how-it-works">How it works</a> ·
